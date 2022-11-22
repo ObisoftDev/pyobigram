@@ -1,0 +1,5 @@
+bs4
+requests
+user_agent
+telethon
+cryptg
