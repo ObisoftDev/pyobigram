@@ -122,7 +122,7 @@ class ObigramClient(object):
         self.threads.clear()
         pass
 
-    def send_message(self,chat_id=0,text='',parse_mode='',reply_markup=None):
+    def send_message(self,chat_id=0,text='',parse_mode='',reply_markup=None,reply_to_message_id=None):
         try:
             text=text.replace('%', '%25')
             text=text.replace('#', '%23')
@@ -131,6 +131,8 @@ class ObigramClient(object):
             text=text.replace('&', '%26')
             sendMessageUrl = self.path + 'sendMessage?chat_id=' + str(chat_id) + '&text=' + text + '&parse_mode=' + parse_mode
             payload = {'reply_markup': reply_markup}
+            if reply_to_message_id:
+                payload['reply_to_message_id']=reply_to_message_id
             jsonData = {}
             if reply_markup:
                 jsonData = payload
