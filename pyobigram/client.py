@@ -251,7 +251,7 @@ class ObigramClient(object):
                     time_total += tcurrent
                     time_start = time.time()
                     if time_total>=1:
-                       clock_time = (total - chunk_por) / (size_persecond)
+                       clock_time = (total - chunk_por) / (size_per_second)
                        if progress_func:
                           progress_func(self,filename,chunk_por,total,size_per_second,clock_time,progress_args)
                        time_total = 0
