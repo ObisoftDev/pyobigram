@@ -244,17 +244,19 @@ class ObigramClient(object):
             size_per_second = 0
             clock_start = time.time()
             async for chunk in self.mtproto.iter_download(forward,chunk_size=1024,request_size=1024):
-                chunk_por += len(chunk)
-                size_per_second+=len(chunk)
-                tcurrent = time.time() - time_start
-                time_total += tcurrent
-                time_start = time.time()
-                if time_total>=1:
-                   clock_time = (total - chunk_por) / (size_persecond)
-                   if progress_func:
-                      progress_func(self,filename,chunk_por,total,size_per_second,clock_time,progress_args)
-                   time_total = 0
-                   size_per_second = 0
+                try:
+                    chunk_por += len(chunk)
+                    size_per_second+=len(chunk)
+                    tcurrent = time.time() - time_start
+                    time_total += tcurrent
+                    time_start = time.time()
+                    if time_total>=1:
+                       clock_time = (total - chunk_por) / (size_persecond)
+                       if progress_func:
+                          progress_func(self,filename,chunk_por,total,size_per_second,clock_time,progress_args)
+                       time_total = 0
+                       size_per_second = 0
+                except:pass
                 filesave.write(chunk)
                 pass
             filesave.close()
