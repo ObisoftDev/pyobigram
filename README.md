@@ -15,7 +15,7 @@ To install from the source with pip:
 ```
 pip install https://github.com/ObisoftDev/pyobigram/archive/master.zip
 ```
-- Using pyobidl in a Python script
+- Using pyobigram in a Python script
 ```
 from pyobigram.client import ObigramClient
 
