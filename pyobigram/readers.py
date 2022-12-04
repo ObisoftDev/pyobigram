@@ -5,6 +5,29 @@ import time
 import requests
 from .utils import get_file_size,get_url_file_name,req_file_size
 
+class MonitorReader(object):
+    def __init__(self,total=100):
+        self.chunk_por = 0
+        self.chunkrandom = 100
+        self.total = total
+        self.time_start = time.time()
+        self.time_total = 0
+        self.size_per_second = 0
+        self.clock_start = time.time()
+    def can_step(self,size=0):
+        self.chunk_por += size
+        self.size_per_second += size
+        tcurrent = time.time() - self.time_start
+        self.time_total += tcurrent
+        self.time_start = time.time()
+        if self.time_total>=1:
+            self.clock_time = (self.total - self.chunk_por) / (self.size_per_second)
+            return True
+        return False
+    def cleanup(self):
+        self.time_total
+        self.size_per_second = 0
+
 class FileProgressReader(BufferedReader):
     def __init__(self,filepath='',read_size=1024,progress_func=None,progress_args=None,self_in = None):
         self.file_path = filepath
