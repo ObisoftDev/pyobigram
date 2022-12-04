@@ -25,7 +25,7 @@ class MonitorReader(object):
             return True
         return False
     def cleanup(self):
-        self.time_total
+        self.time_total = 0
         self.size_per_second = 0
 
 class FileProgressReader(BufferedReader):
