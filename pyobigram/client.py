@@ -21,7 +21,7 @@ from telethon.tl.types import TypeInputPeer, InputPeerChannel, InputPeerChat, In
 from telethon import TelegramClient
 from telethon.tl.types import InputDocument
 from telethon import functions, types
-from .paralleltransfer import download_file
+from .paralleltransfer import download_file,create_stream
 
 import asyncio
 
@@ -234,10 +234,7 @@ class ObigramClient(object):
         return destname
 
     def mtp_download_file(self,message,dest_path='',progress_func=None,progress_args=None):
-        self.temps.append(message)
         async def asyncexec_download():
-            message = self.temps[0]
-            self.temps.clear()
             peer = InputPeerUser(user_id=message.chat.id, access_hash=0)
             forward = cast(Message, await self.mtproto.get_messages(entity=peer, ids=message.message_id))
             #forward = await self.mtproto.forward_messages(message.sender.id,message.message_id,from_peer=message.sender.id)
@@ -252,6 +249,40 @@ class ObigramClient(object):
             output += filename
             await download_file(self.mtproto,forward.media,output,fsize,progress_func,progress_args,self)
             self.store[message.message_id] = output
+        self.loop.run_until_complete(asyncexec_download())
+        output = None
+        while not output:
+            try:
+                output = self.store[message.message_id]
+                self.store.pop(message.message_id)
+            except:pass
+            pass
+        return output
+
+    def mtp_gen_message(self,chat_id,msg_id):
+        class Chat(object):
+            def __init__(self, id):
+                self.id = id
+                pass
+        class Message(object):
+            def __init__(self,chat_id,msg_id):
+                self.chat = Chat(chat_id)
+                self.message_id = msg_id
+                pass
+        return Message(chat_id,msg_id)
+
+    def mtp_gen_stream(self,message):
+        async def asyncexec_download():
+            peer = InputPeerUser(user_id=message.chat.id, access_hash=0)
+            forward = cast(Message, await self.mtproto.get_messages(entity=peer, ids=message.message_id))
+            #forward = await self.mtproto.forward_messages(message.sender.id,message.message_id,from_peer=message.sender.id)
+            #await forward.delete()
+            filename = forward.file.id + forward.file.ext
+            fsize = forward.file.size
+            if forward.file.name:
+                filename = forward.file.name
+            body = create_stream(self.mtproto,forward.media,fsize)
+            self.store[message.message_id] = {'fname':filename,'body':body,'fsize':fsize}
         self.loop.run_until_complete(asyncexec_download())
         output = None
         while not output:
