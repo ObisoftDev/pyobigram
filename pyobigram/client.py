@@ -14,9 +14,14 @@ from .threads import ObigramThread
 from .utils import get_url_file_name,req_file_size,createID
 from .readers import FileProgressReader,FileUrlProgressReader
 
+from typing import Dict, cast
+from telethon.tl.custom import Message
+from telethon.tl.types import TypeInputPeer, InputPeerChannel, InputPeerChat, InputPeerUser
+
 from telethon import TelegramClient
 from telethon.tl.types import InputDocument
 from telethon import functions, types
+from .paralleltransfer import download_file
 
 import asyncio
 
@@ -37,6 +42,7 @@ class ObigramClient(object):
         self.api_id = api_id
         self.api_hash = api_hash
         self.mtproto = None
+        self.transfer = None
         self.loop = None
         if self.api_id!='' and self.api_hash!='':
             self.mtproto = TelegramClient('obigram',api_id=self.api_id,api_hash=self.api_hash)
@@ -51,6 +57,7 @@ class ObigramClient(object):
         self.Way = False
         self.store = {}
         self.callback_funcs = {}
+        self.temps = []
 
     def startNewThread(self,targetfunc=None,args=(),update=None):
         self.this_thread = ObigramThread(targetfunc=targetfunc,args=args,update=update)
@@ -132,14 +139,16 @@ class ObigramClient(object):
             sendMessageUrl = self.path + 'sendMessage?chat_id=' + str(chat_id) + '&text=' + text + '&parse_mode=' + parse_mode
             payload = {'reply_markup': reply_markup}
             if reply_to_message_id:
-                payload['reply_to_message_id']=reply_to_message_id
+                payload['reply_to_message_id'] = reply_to_message_id
             jsonData = {}
             if reply_markup:
                 jsonData = payload
             result = requests.get(sendMessageUrl,json=jsonData).text
             result = self.parseUpdate(result)
             return json.loads(result, object_hook = lambda d : Namespace(**d)).result
-        except:pass
+        except Exception as ex:
+            print(str(ex))
+            pass
         return None
 
     def delete_message(self,message):
@@ -225,39 +234,23 @@ class ObigramClient(object):
         return destname
 
     def mtp_download_file(self,message,dest_path='',progress_func=None,progress_args=None):
+        self.temps.append(message)
         async def asyncexec_download():
-            forward = await self.mtproto.forward_messages(message.sender.id,message.message_id,from_peer=message.sender.id)
-            await forward.delete()
+            message = self.temps[0]
+            self.temps.clear()
+            peer = InputPeerUser(user_id=message.chat.id, access_hash=0)
+            forward = cast(Message, await self.mtproto.get_messages(entity=peer, ids=message.message_id))
+            #forward = await self.mtproto.forward_messages(message.sender.id,message.message_id,from_peer=message.sender.id)
+            #await forward.delete()
             filename = forward.file.id + forward.file.ext
+            fsize = forward.file.size
             if forward.file.name:
                 filename = forward.file.name
             output = dest_path
             if '/' in output:
                 output += '/'
             output += filename
-            filesave = open(output,'wb')
-            chunk_por = 0
-            chunkrandom = 100
-            total = forward.file.size
-            time_start = time.time()
-            time_total = 0
-            size_per_second = 0
-            clock_start = time.time()
-            async for chunk in self.mtproto.iter_download(forward,chunk_size=1024,request_size=1024):
-                chunk_por += len(chunk)
-                size_per_second+=len(chunk)
-                tcurrent = time.time() - time_start
-                time_total += tcurrent
-                time_start = time.time()
-                if time_total>=1:
-                   clock_time = (total - chunk_por) / (size_per_second)
-                   if progress_func:
-                      progress_func(self,filename,chunk_por,total,size_per_second,clock_time,progress_args)
-                   time_total = 0
-                   size_per_second = 0
-                filesave.write(chunk)
-                pass
-            filesave.close()
+            await download_file(self.mtproto,forward.media,output,fsize,progress_func,progress_args,self)
             self.store[message.message_id] = output
         self.loop.run_until_complete(asyncexec_download())
         output = None
