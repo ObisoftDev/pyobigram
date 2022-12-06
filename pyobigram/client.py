@@ -233,6 +233,27 @@ class ObigramClient(object):
             file_wr.close()
         return destname
 
+    def mtp_get_file_info(self,message):
+        async def asyncexec_download():
+            peer = InputPeerUser(user_id=message.chat.id, access_hash=0)
+            forward = cast(Message, await self.mtproto.get_messages(entity=peer, ids=message.message_id))
+            #forward = await self.mtproto.forward_messages(message.sender.id,message.message_id,from_peer=message.sender.id)
+            #await forward.delete()
+            filename = forward.file.id + forward.file.ext
+            fsize = forward.file.size
+            if forward.file.name:
+                filename = forward.file.name
+            self.store[message.message_id] = {'fname':filename,'fsize':fsize,'location':message}
+        self.loop.run_until_complete(asyncexec_download())
+        output = None
+        while not output:
+            try:
+                output = self.store[message.message_id]
+                self.store.pop(message.message_id)
+            except:pass
+            pass
+        return output
+    
     def mtp_download_file(self,message,dest_path='',progress_func=None,progress_args=None):
         async def asyncexec_download():
             peer = InputPeerUser(user_id=message.chat.id, access_hash=0)
