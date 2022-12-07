@@ -280,12 +280,6 @@ async def _internal_transfer_to_telegram(client: TelegramClient,
         return InputFile(file_id, part_count, "upload", hash_md5.hexdigest()), file_size
 
 
-def create_stream(client: TelegramClient,location: TypeLocation,size:int):
-    dc_id, location = utils.get_input_location(location)
-    downloader = ParallelTransferrer(client, dc_id)
-    downloaded = downloader.download(location, size)
-    return downloaded
-
 async def download_file(client: TelegramClient,
                         location: TypeLocation,
                         filepath: str,
@@ -309,6 +303,11 @@ async def download_file(client: TelegramClient,
 
     return filepath
 
+def create_stream(client: TelegramClient,location: TypeLocation,size:int):
+    dc_id, location = utils.get_input_location(location)
+    downloader = ParallelTransferrer(client, dc_id)
+    downloaded = downloader.download(location, size)
+    return downloaded
 
 async def upload_file(client: TelegramClient,
                       file: BinaryIO,
