@@ -29,7 +29,7 @@ class MonitorReader(object):
         self.size_per_second = 0
 
 class FileProgressReader(BufferedReader):
-    def __init__(self,filepath='',read_size=1024,progress_func=None,progress_args=None,self_in = None):
+    def __init__(self,filepath='',read_size=1024,progress_func=None,progress_args=None,self_in = None,normalize=False):
         self.file_path = filepath
         self.file_name = str(self.file_path).split('/')[-1]
         self.file = open(filepath,'rb')
@@ -44,13 +44,17 @@ class FileProgressReader(BufferedReader):
         self.size_per_second = 0
         self.clock_start = time.time()
         self.self_in = self_in
+        self.normalize = normalize
         BufferedReader.__init__(self,self.file,self.read_size)
 
     def __len__(self):
         return self.file_size
 
     def read(self, size=1024):
-        chunk = self.file.read(self.read_size)
+        if self.normalize:
+            chunk = self.file.read(size)
+        else:
+            chunk = self.file.read(self.read_size)
         try:
             self.chunk_por += len(chunk)
             self.size_per_second+=len(chunk)
