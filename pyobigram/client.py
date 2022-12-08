@@ -329,7 +329,7 @@ class ObigramClient(object):
     def mtp_send_file(self,sender,filepath,progress_func=None,progress_args=None):
         upload_id = createID()
         async def asyncexec_upload():
-            file = FileProgressReader(filepath,progress_func=progress_func,progress_args=progress_args,self_in=self)
+            file = FileProgressReader(filepath,progress_func=progress_func,progress_args=progress_args,self_in=self,normalize=True)
             send = await self.mtproto.send_file(sender.id,file)
             self.store[upload_id] = send
             pass
