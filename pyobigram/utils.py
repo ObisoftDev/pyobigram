@@ -16,6 +16,20 @@ def req_file_size(req):
     except:
         return 0
 
+def makeSafeFilename(inputFilename):
+    # Set here the valid chars
+    ret = ''
+    map = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ._'
+    for char in inputFilename:
+        if char in map:
+           ret += char
+        else:
+           if char==' ':
+                ret+=''
+           else:
+                ret += ''
+    return ret
+
 def get_url_file_name(url,req):
     try:
         if "Content-Disposition" in req.headers.keys():
