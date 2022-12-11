@@ -44,21 +44,26 @@ class ObigramClient(object):
         self.mtproto = None
         self.transfer = None
         self.loop = None
-        if self.api_id!='' and self.api_hash!='':
-            self.mtproto = TelegramClient('obigram',api_id=self.api_id,api_hash=self.api_hash)
-            self.mtproto.start(bot_token=self.token)
-            try:
-                self.loop = asyncio.get_runing_loop();
-            except:
-                try:
-                    self.loop = asyncio.get_event_loop();
-                except:pass
-            pass
         self.Way = False
         self.store = {}
         self.callback_funcs = {}
         self.temps = []
 
+    def newMTP(self,name='obigram'):
+        if self.api_id!='' and self.api_hash!='':
+            try:
+                os.unlink(f'{name}.session')
+                os.unlink(f'{name}.session-journal')
+            except:pass
+            self.mtproto = TelegramClient(name,api_id=self.api_id,api_hash=self.api_hash)
+            self.mtproto.start(bot_token=self.token)
+            try:
+                    self.loop = asyncio.get_runing_loop();
+            except:
+                    try:
+                        self.loop = asyncio.get_event_loop();
+                    except:pass
+        
     def startNewThread(self,targetfunc=None,args=(),update=None):
         self.this_thread = ObigramThread(targetfunc=targetfunc,args=args,update=update)
         self.threads[self.this_thread.id] = self.this_thread
@@ -80,6 +85,7 @@ class ObigramClient(object):
         pass
 
     def run(self):
+        self.newMTP()
         self.runing = True
         if self.loop:
             self.startNewThread(self.run_forever_loop)
