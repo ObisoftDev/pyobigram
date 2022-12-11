@@ -54,9 +54,9 @@ class TTUI(object):
                                 if 'not ' in calle:
                                     calle = str(calle).replace('not ','')
                                     if not args[calle]:
-                                       result += exec_lines(recolect_lines,args)
+                                       result += self._exec_lines(recolect_lines,args)
                                 elif args[calle]:
-                                    result += exec_lines(recolect_lines,args)
+                                    result += self._exec_lines(recolect_lines,args)
                             recolect_lines.clear()
                             continue
                         elif '@endfor' in line and '@for' in calle:
@@ -105,10 +105,11 @@ class TTUI(object):
                     if '@jmpto_sect' in line:
                         section = str(line).replace('@jmpto_sect ','').replace('\n','').replace('\r','')
                         if section in sections:
-                           result += exec_lines(sections[section],args=args,sections=sections)
+                           result += self._exec_lines(sections[section],args=args,sections=sections)
                         continue
                     result += line + '\n'
-                except:pass
+                except Exception as ex:
+                    pass
         return result
 
     def _parse_markup(self,line):
