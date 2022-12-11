@@ -31,5 +31,5 @@ if __name__ == '__main__':
     bot = ObigramClient(bot_token,api_id=api_id,api_hash=api_hash)
     bot.onMessage(message_handle)
     print('bot is runing!')
-    bot.run();
+    bot.run()
 ```
