@@ -11,7 +11,7 @@ import uuid
 import os
 
 from .threads import ObigramThread
-from .utils import get_url_file_name,req_file_size,createID
+from .utils import get_url_file_name,req_file_size,createID,makeSafeFilename
 from .readers import FileProgressReader,FileUrlProgressReader
 
 from typing import Dict, cast
@@ -255,6 +255,7 @@ class ObigramClient(object):
             fsize = forward.file.size
             if forward.file.name:
                 filename = forward.file.name
+            filename = makeSafeFilename(filename)
             output = dest_path
             if '/' in output:
                 output += '/'
