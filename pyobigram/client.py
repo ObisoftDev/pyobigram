@@ -71,6 +71,7 @@ class ObigramClient(object):
         pass
 
     def parseUpdate(self,update):
+        parse = str(update).replace('sender_chat','chat')
         parse = str(update).replace('from','sender')
         parse = str(parse).replace('my_chat_member','message')
         parse = str(parse).replace('document','file')
