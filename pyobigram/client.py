@@ -144,8 +144,10 @@ class ObigramClient(object):
             text=text.replace('&', '%26')
             sendMessageUrl = self.path + 'sendMessage?chat_id=' + str(chat_id) + '&text=' + text + '&parse_mode=' + parse_mode
             payload = {'reply_markup': reply_markup}
+            jsonData = {}
             if reply_to_message_id:
                 payload['reply_to_message_id'] = reply_to_message_id
+                jsonData['reply_to_message_id'] = reply_to_message_id
             jsonData = {}
             if reply_markup:
                 jsonData = payload
