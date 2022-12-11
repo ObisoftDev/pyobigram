@@ -288,6 +288,7 @@ class ObigramClient(object):
             fsize = forward.file.size
             if forward.file.name:
                 filename = forward.file.name
+            filename = makeSafeFilename(filename)
             self.store[message.message_id] = {'fname':filename,'fsize':fsize,'location':message}
         self.loop.run_until_complete(asyncexec_download())
         output = None
@@ -321,6 +322,7 @@ class ObigramClient(object):
             fsize = forward.file.size
             if forward.file.name:
                 filename = forward.file.name
+            filename = makeSafeFilename(filename)
             body = create_stream(self.mtproto,forward.media,fsize)
             self.store[message.message_id] = {'fname':filename,'body':body,'fsize':fsize}
         self.loop.run_until_complete(asyncexec_download())
