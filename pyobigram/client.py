@@ -149,7 +149,6 @@ class ObigramClient(object):
             if reply_to_message_id:
                 payload['reply_to_message_id'] = reply_to_message_id
                 jsonData['reply_to_message_id'] = reply_to_message_id
-            jsonData = {}
             if reply_markup:
                 jsonData = payload
             result = requests.get(sendMessageUrl,json=jsonData).text
