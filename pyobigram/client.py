@@ -62,7 +62,7 @@ class ObigramClient(object):
             except:
                     try:
                         self.loop = asyncio.get_event_loop();
-                    except:pass
+                    except:self.loop = self.mtproto.loop
         
     def startNewThread(self,targetfunc=None,args=(),update=None):
         self.this_thread = ObigramThread(targetfunc=targetfunc,args=args,update=update)
