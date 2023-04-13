@@ -1,5 +1,6 @@
 bs4
 requests
+requests[socks]
 user_agent
 telethon
 cryptg
