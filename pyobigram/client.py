@@ -219,6 +219,24 @@ class ObigramClient(object):
         parse = json.loads(result, object_hook = lambda d : Namespace(**d))
         return parse.result
 
+    def send_web_file(self,chat_id,url,caption=None,reply_to_message_id=None,reply_markup=None):
+        type='document'
+        sendDocumentUrl = self.path + self.SendFileTypes[type]
+        payload_data = {'chat_id':chat_id}
+        if reply_to_message_id:
+            payload_data['reply_to_message_id'] = reply_to_message_id
+        if reply_markup:
+            payload_data['reply_markup'] = reply_markup
+        if caption:
+            payload_data['caption'] = caption
+        payload_data['document'] = url
+        result = requests.post(sendDocumentUrl,data=payload_data).text
+        result = self.parseUpdate(result)
+        if thumb:
+            thumbfile.close()
+        parse = json.loads(result, object_hook = lambda d : Namespace(**d))
+        return parse.result
+
     def get_file(self,file_id):
         getFileUrl = self.path + 'getFile?file_id=' + str(file_id)
         result = requests.get(getFileUrl).text
