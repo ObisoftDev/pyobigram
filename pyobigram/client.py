@@ -232,8 +232,6 @@ class ObigramClient(object):
         payload_data['document'] = url
         result = requests.post(sendDocumentUrl,data=payload_data).text
         result = self.parseUpdate(result)
-        if thumb:
-            thumbfile.close()
         parse = json.loads(result, object_hook = lambda d : Namespace(**d))
         return parse.result
 
